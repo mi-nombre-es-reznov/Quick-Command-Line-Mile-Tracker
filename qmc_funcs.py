@@ -8,6 +8,7 @@ from os import system, name
 import time
 import re
 import datetime
+import qmc_consts as consts
 
 def validate_email(test_email):
     regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
@@ -82,6 +83,34 @@ def get_month_name(num):
     elif(num == 12):
         return "December"
 
+def Menu(opt):
+    '''
+    - Input -
+    opt -- List: Holds the names of the Menu items being passed in.
+    choice -- Integer: Holds the representative value of the Menu item the user chose.
+    
+    - Output -
+    ret: choice
+    '''
+    choice = 0
+    
+    # Iterate through the menu and display the number of items with choice marker
+    for i in range(len(opt)):
+        print(str(i + 1) + ") " + str(opt[i]))
+        
+    # Menu space
+    print("\n\n")
+        
+    # Bound check for valid choice
+    while(choice < 1 or choice > len(opt)):
+        try:
+            # Accept user input as an int and force repeat entry if invalid
+            choice = int(input("Please select an option: "))
+        except ValueError:
+            choice = 0
+            
+    return choice
+
 def get_vehicle_data():
     make = ""
     model = ""
@@ -113,3 +142,60 @@ def y_n_choice(m):
         choice = choice.lower()
     
     return choice
+
+def get_start():
+    stmi = 0
+    sttime = ""
+    
+    while(stmi == 0):
+        try:
+            stmi = int(input("Starting miles: "))
+        except ValueError:
+            clear()
+            print("Enter a valid number.\n")
+            
+    x = datetime.datetime.now()
+    sttime = str(x.now())
+    clear()
+    
+    return stmi, sttime
+
+def get_end():
+    emi = 0
+    pay = 0.0
+    etime = ""
+    
+    while(emi == 0):
+        try:
+            emi = int(input("Ending miles: "))
+        except ValueError:
+            clear()
+            print("Enter a valid number.\n")
+            
+    while(pay == 0):
+        try:
+            pay = float(input("Shift pay: $"))
+        except ValueError:
+            clear()
+            print("Enter a valid number.\n")
+            
+    x = datetime.datetime.now()
+    etime = str(x.now())
+    clear()
+    
+    return emi, etime, pay
+    
+def calc_shift(st, end, pay):
+    tot_miles = 0
+    saved = 0.0
+    profit = 0.0
+    owe = 0.0
+    earn = 0.0
+    
+    tot_miles = (end - st)
+    saved = (tot_miles * consts.MILE_WRITEOFF_2020)
+    profit = (pay - saved)
+    owe = (profit * (consts.SELF_EMPLOYEMENT_TWO + consts.INCOME_TAX_TWO))
+    earn = (profit - owe)
+    
+    return saved, owe, earn

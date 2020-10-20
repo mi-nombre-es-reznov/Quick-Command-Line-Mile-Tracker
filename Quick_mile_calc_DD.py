@@ -18,8 +18,9 @@ Features:
 import qmc_consts as qc
 import qmc_funcs as qf
 import qmc_Menus as Menu
-import time
 import csv
+
+fname = ""
 
 class get_info:
     def __init__(self, f, l, e, j, ma, mo, y):
@@ -84,12 +85,20 @@ class get_info:
         return [self.make, self.model, self.year]
 
 def Main():
+    global fname
     correct = ""
     
     # Test file for names
     try:
         file = open(qc.USER_INFO_FILE, 'r')
         print("File: " + qc.USER_INFO_FILE + " exists!")
+        
+        with open(qc.USER_INFO_FILE, 'r') as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter = ',')
+            for i in csv_reader:
+                fname = i[0]
+                print(fname)
+            
     except FileNotFoundError:
         print("File doesn't exist! Creating files", end="", flush = True)
         qf.wait(2)
@@ -97,13 +106,13 @@ def Main():
         for i in range(3):
             print(".", end='', flush=True)
             qf.wait(1)
+
+        qf.clear()
         
         with open(qc.USER_INFO_FILE, 'a', newline = '') as file:
             writes = csv.writer(file)
             writes.writerow(qc.USER_INFO_HEADING)
-            
-        qf.clear()
-        
+                    
         print("File: '" + qc.USER_INFO_FILE + "' has been successfully created.", flush = True)
         
         with open(qc.VEHICLE_INFO_FILE, 'a', newline = '') as file:
@@ -111,6 +120,13 @@ def Main():
             writes.writerow(qc.VEHICLE_INFO_HEADING)
                     
         print("File: '" + qc.VEHICLE_INFO_FILE + "' has been successfully created.", flush = True)
+
+        with open(qc.BASE_DATA_TRACKER, 'a', newline = '') as file:
+            writes = csv.writer(file)
+            writes.writerow(qc.BASE_DATA_HEADING)
+                    
+        print("File: '" + qc.BASE_DATA_TRACKER + "' has been successfully created.", flush = True)
+
         qf.wait(2)
         qf.clear()
         Menu.new_account()
@@ -141,9 +157,39 @@ def Main():
             qf.clear()
             print("Data update not available! Please delete file (" + qc.USER_INFO_FILE + ") and start over.")
     
+    # Data values
+    begin = 0
+    end = 0
+    sttime = ""
+    endtime = ""
+    tax_saved = 0
+    pay = 0
+    tax_owed = 0
+    earnings = 0        
+    
     # Main Menu    
     qf.clear()
     Menu.Main_Menu()
+    print("Welcome " + fname + '\n')
+    option = qf.Menu(qc.MM_OPTIONS)
+    
+    if(option == 1):
+        begin, sttime = qf.get_start()
+        end, endtime, pay = qf.get_end()
+        tax_saved, tax_owed, earnings = qf.calc_shift(begin, end, pay)
+        
+        with open(qc.BASE_DATA_TRACKER, 'a', newline = '') as file:
+            writes = csv.writer(file)
+            writes.writerow([begin, end, sttime, endtime, '2020', tax_saved, tax_owed, '1', earnings])
+        
+    print("Starting miles: " + str(begin))
+    print("Start Time: " + sttime)
+    print("End miles: " + str(end))
+    print("End Time: " + endtime)
+    print("Saved: " + str(tax_saved))
+    print("Owed: " + str(tax_owed))
+    print("Earned" + str(earnings))
+        
     
    
 if(__name__ == "__main__"):
