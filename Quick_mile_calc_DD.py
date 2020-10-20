@@ -52,3 +52,6 @@ class get_info:
         print("Driver: " + self.first + " " + self.last)
         print("Vehicle: " + self.year + " " + self.make + " " + self.model + "\n")
         print("Joined: " + self.joined)
+        
+if(__name__ == "__main__"):
+    print("Success! GIT TEST IN PROGRESS!!!")
